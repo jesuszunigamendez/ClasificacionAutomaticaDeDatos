@@ -4,11 +4,28 @@ import os
 import argparse
 import sys
 import shutil
+from datetime import datetime
 
 class codificarExcel:
     def __init__(self,*,origen,destino,columnaClasificadora,ancho,alto,modo="entrenar"):
+        """
+            Clase que permite codificar un archivo de excel en arreglos bidimensionales
+
+            Argumentos:
+                origen: Archivo fuente
+                destino: Carpeta donde se guardaran
+                columnaClasificadora: columna donde se tomaran las clases a clasificar
+                ancho: ancho de las firmas en pixeles
+                alto: alto de las firmas en pixeles
+                modo: indica si las firmas son para entrenar o para clasificar
+
+            Retorna:
+        """
         self.archivoOrigen = origen
-        self.carpetaDestinoPrincipal = destino
+        corrida = datetime.now().strftime("%d_%m_%y_%H_%M_%S")
+        self.carpetaDestinoPrincipal = destino + "/" + str(corrida) + "_"
+        print("aquii")
+        print(self.carpetaDestinoPrincipal)
         if os.path.exists(self.carpetaDestinoPrincipal):
             shutil.rmtree(self.carpetaDestinoPrincipal)
         self.elMayor = 0
@@ -25,6 +42,9 @@ class codificarExcel:
 
 
     def generarImagenesDeArchivo(self):
+        """
+            Funcion que procesa todo el archivo generando firmas aptas para clasificar
+        """
         #  se abre e; excel
         wb = openpyxl.load_workbook(self.archivoOrigen)
         # se selecciona la primera hoja
@@ -33,7 +53,7 @@ class codificarExcel:
         numeroFila = 0
         numeroCelda = 0
         CarpetaDestino = "FirmasTemporales"
-        self.columnaClasificadora = 10
+        #self.columnaClasificadora = 10
         # for que recorre fila for fila
         for fila in hoja.iter_rows(values_only=True):
             numeroFila = numeroFila + 1            
@@ -48,21 +68,25 @@ class codificarExcel:
                 numeroCelda = numeroCelda + 1
                 # si son las demas filas entonces se procesa cada celda como una linea de pixeles para la imagen 
                 if (numeroFila != 1):# and (identificadorCelda != 0):
-                    # todo el valor de la celda se convierte en un arreglo de valores unicode convertidos a decimal
-                    arrayceldas.append(celda)
-                    unicodedec, unicodehex = self.convertir_a_utf8_decimal(str(celda))
-                    # para cada valor decimal en el arreglo equivalenter a la informacion de la celda se obtiene su equivalente en RGB
-                    for dec in unicodedec:
-                        arrayRGB.append(self.array_binarios_a_RGB(self.dividirBinarioenBytes(self.decimal_a_binario_24bits(dec))))
-                        # se actualizan baderas de valores
-                        #################################
-                        if dec > self.elMayor:
-                            self.elMayor = dec
-                        if dec < self.elMenor:
-                            self.elMenor = dec
-                        #################################                        
-                    # al terminar de convertir los caracteres a su equivalente unicode y de unicode a su equivalente RGB se agrega un identificador de fin de celda    
-                    arrayRGB.append([256,256,256])
+                    if numeroCelda == self.columnaClasificadora:
+                        print("excluida",celda)
+                    else:
+                        #if numeroCelda == self.columnaClasificadora
+                        # todo el valor de la celda se convierte en un arreglo de valores unicode convertidos a decimal
+                        arrayceldas.append(celda)
+                        unicodedec, unicodehex = self.cadenaADecimalHexadecimal(str(celda))
+                        # para cada valor decimal en el arreglo equivalenter a la informacion de la celda se obtiene su equivalente en RGB
+                        for dec in unicodedec:
+                            arrayRGB.append(self.array_binarios_a_RGB(self.dividirBinarioenBytes(self.decialABinario24(dec))))
+                            # se actualizan baderas de valores
+                            #################################
+                            if dec > self.elMayor:
+                                self.elMayor = dec
+                            if dec < self.elMenor:
+                                self.elMenor = dec
+                            #################################                        
+                        # al terminar de convertir los caracteres a su equivalente unicode y de unicode a su equivalente RGB se agrega un identificador de fin de celda    
+                        arrayRGB.append([256,256,256])
 
             if numeroFila != 1:
                 # cuando se procesa toda una fila se guarda la imagen resultante en la carpeta correspondiente
@@ -73,6 +97,9 @@ class codificarExcel:
 
 
     def procesarArchivo(self):
+        """
+            Funcion que procesa todo el archivo generando firmas aptas para entrenar
+        """
         #  se abre e; excel
         wb = openpyxl.load_workbook(self.archivoOrigen)
         # se selecciona la primera hoja
@@ -109,19 +136,19 @@ class codificarExcel:
                     else:
                         # todo el valor de la celda se convierte en un arreglo de valores unicode convertidos a decimal
                         arrayceldas.append(celda)
-                        unicodedec, unicodehex = self.convertir_a_utf8_decimal(str(celda))
+                        unicodedec, unicodehex = self.cadenaADecimalHexadecimal(str(celda))
                         # para cada valor decimal en el arreglo equivalenter a la informacion de la celda se obtiene su equivalente en RGB
                         for dec in unicodedec:
                             #print("aqui")
                             #print(dec)
-                            #print(self.decimal_a_binario_24bits(dec))
-                            #print(self.dividirBinarioenBytes(self.decimal_a_binario_24bits(dec)))
-                            #print(self.array_binarios_a_RGB(self.dividirBinarioenBytes(self.decimal_a_binario_24bits(dec))))
+                            #print(self.decialABinario24(dec))
+                            #print(self.dividirBinarioenBytes(self.decialABinario24(dec)))
+                            #print(self.array_binarios_a_RGB(self.dividirBinarioenBytes(self.decialABinario24(dec))))
                             #if celda == None or celda == "None":
                                 #arrayRGB.append([256,256,256])
                                 #break
                             #else:
-                            arrayRGB.append(self.array_binarios_a_RGB(self.dividirBinarioenBytes(self.decimal_a_binario_24bits(dec))))
+                            arrayRGB.append(self.array_binarios_a_RGB(self.dividirBinarioenBytes(self.decialABinario24(dec))))
                             #print("fin")
                             # se actualizan baderas de valores
                             #################################
@@ -151,7 +178,16 @@ class codificarExcel:
 
 
     def ajustarColores(self,arrayRGB):
+        """
+            Funcion que permite convertir un arreglo de valores en un nuevo arreglo que derscarta los valores
+            nulos, recive un arreglo de la forma [[0,0,#],[0,#,#]...,[0#,0,#]] y devuelve [[#,#,#],...,[#,#,#]]
 
+            Argumentos: 
+                arrayRGB: arreglo que contiene valores de pixeles
+
+            Retorna:
+                arrayPixelesARetornar: arreglo que contiene los pixeles validos de array RGB
+        """
         #primera accion, obtenemos todos los colores de los pixeles diferentes de cero y los guardamos en el array de colores validos
         # #######################################
         # print("imprimimos el array original")
@@ -211,6 +247,15 @@ class codificarExcel:
 
 
     def guardarImagen(self,arrayRGB,CarpetaDestino,nombreimagen):
+        """
+            Funcion que permite guardar un arreglo de pixeles como una imagen
+
+            Argumentos:
+                arrayRGB: arreglo de pixeles
+                CarpetaDestino: carpeta donde se fguardara la imagen
+                nombreimagen: combre de la imagen a guardar
+            Retorna 
+        """
         # si alguna de las dos variables es cero significa que el programa debe definir el tamanio del archivo de salida
         anchoMayor = 0
         altoMayor = 0
@@ -280,31 +325,40 @@ class codificarExcel:
 
 
 
-    def decodificarArrayRGB(self, arrayRGB):
-        #print("\033[91m" + "voy a decodificar " + "\033[0m",arrayRGB)
-        arrayHex = []
-        for rgb in arrayRGB:
-            #print("este es el rgb ",rgb)
-            if rgb != [256,256,256]:
-                #print("rgb diferente de 0")
-                unicodeBinario = ""
-                for decimal in rgb:
-                    unicodeBinario = unicodeBinario + str(self.decimal_a_binario_8bits(decimal))
-                #print("este es el binario  ",unicodeBinario)
-                unicodeHex = self.binario_a_hexadecimal(unicodeBinario)    
-                #print("este es el binario  en hex ",unicodeHex)
-                arrayHex.append(unicodeHex)
-            else:
-                #print("rgb es o o o ")
-                #print(arrayHex)
-                print(self.obtener_caracter_desde_unicode(arrayHex))
-                arrayHex = []
+    # def decodificarArrayRGB(self, arrayRGB):
+    #     #print("\033[91m" + "voy a decodificar " + "\033[0m",arrayRGB)
+    #     arrayHex = []
+    #     for rgb in arrayRGB:
+    #         #print("este es el rgb ",rgb)
+    #         if rgb != [256,256,256]:
+    #             #print("rgb diferente de 0")
+    #             unicodeBinario = ""
+    #             for decimal in rgb:
+    #                 unicodeBinario = unicodeBinario + str(self.decimal_a_binario_8bits(decimal))
+    #             #print("este es el binario  ",unicodeBinario)
+    #             unicodeHex = self.binario_a_hexadecimal(unicodeBinario)    
+    #             #print("este es el binario  en hex ",unicodeHex)
+    #             arrayHex.append(unicodeHex)
+    #         else:
+    #             #print("rgb es o o o ")
+    #             #print(arrayHex)
+    #             print(self.obtener_caracter_desde_unicode(arrayHex))
+    #             arrayHex = []
         
             
 
 
 
-    def convertir_a_utf8_decimal(self,cadena):
+    def cadenaADecimalHexadecimal(self,cadena):
+        """
+            Funcion que convierte una cadena de caracteres a sus valores decimales y hexadecimales codificados segu unicode
+
+            Argumentos
+                cadena: cadena de bits
+
+            Retorna
+                tupla que contiene la conversion
+        """
         # Codificar la cadena en UTF-8
         utf8_bytes = cadena.encode('utf-8')
 
@@ -317,52 +371,60 @@ class codificarExcel:
         return utf8_codificacion_decimal, utf8_codificacion_hex  
 
 
-    def binario_a_hexadecimal(self,binario):
-        decimal = int(binario, 2)
+    # def binario_a_hexadecimal(self,binario):
+    #     decimal = int(binario, 2)
 
-        hexadecimal = hex(decimal)[2:]  # Eliminar el prefijo '0x'
+    #     hexadecimal = hex(decimal)[2:]  # Eliminar el prefijo '0x'
     
-        return hexadecimal.upper()  # Devolver en mayúsculas
+    #     return hexadecimal.upper()  # Devolver en mayúsculas
 
 
 
-    def obtener_caracter_desde_unicode(self,arrayhex):
-        try:
-            cadena = ""
-            for hex in arrayhex:
-                punto_de_codigo_int = int(hex, 16)
-                caracter = chr(punto_de_codigo_int)
-                cadena = cadena + caracter
-            try:
-                return int(cadena)
-            except Exception as e:
-                if cadena == "None":
-                    return None
-                elif cadena == "True":
-                    return True
-                elif cadena == "False":
-                    return False
-                else:
-                    return cadena
-        except ValueError:
-            return None              
+    # def obtener_caracter_desde_unicode(self,arrayhex):
+    #     try:
+    #         cadena = ""
+    #         for hex in arrayhex:
+    #             punto_de_codigo_int = int(hex, 16)
+    #             caracter = chr(punto_de_codigo_int)
+    #             cadena = cadena + caracter
+    #         try:
+    #             return int(cadena)
+    #         except Exception as e:
+    #             if cadena == "None":
+    #                 return None
+    #             elif cadena == "True":
+    #                 return True
+    #             elif cadena == "False":
+    #                 return False
+    #             else:
+    #                 return cadena
+    #     except ValueError:
+    #         return None              
 
 
 
-    def decimal_a_binario_8bits(self, decimal):
-        # Manejar el caso 0 explícitamente
-        if decimal == 0:
-            return '00000000'
-        # Convertir a binario y eliminar el prefijo '0b'
-        binario = bin(decimal)[2:]
-    	# Asegurar que tenga 8 bits, agregando ceros a la izquierda si es necesario
-        binario_8bits = binario.zfill(8)
-        # Si el número es mayor que 255, se puede truncar o gestionar según sea necesario
-        if decimal > 255:
-            return binario_8bits[-8:]  # Devolver los últimos 8 bits
-        return binario_8bits
+    # def decimal_a_binario_8bits(self, decimal):
+    #     # Manejar el caso 0 explícitamente
+    #     if decimal == 0:
+    #         return '00000000'
+    #     # Convertir a binario y eliminar el prefijo '0b'
+    #     binario = bin(decimal)[2:]
+    # 	# Asegurar que tenga 8 bits, agregando ceros a la izquierda si es necesario
+    #     binario_8bits = binario.zfill(8)
+    #     # Si el número es mayor que 255, se puede truncar o gestionar según sea necesario
+    #     if decimal > 255:
+    #         return binario_8bits[-8:]  # Devolver los últimos 8 bits
+    #     return binario_8bits
 
-    def decimal_a_binario_24bits(self,decimal):
+    def decialABinario24(self,decimal):
+        """
+            Funcion que convierte un valor decimal a bonario de 24 bits
+
+            Argumentos:
+                decimal: valor a convertir
+
+            Retorna: valor convertido
+        """
         if decimal >= 0:
             binario = bin(decimal)[2:] 
         else:
@@ -373,6 +435,15 @@ class codificarExcel:
         return binario_24bits
     
     def dividirBinarioenBytes(self,binario):
+        """
+            Funcion que divide un valor binario de 24 bits en un arreglo de bytes
+
+            Argumentos:
+                binario: valor a convertir
+
+            Retorna: arreglo de bytes 
+        """
+        #se procesa caracter por caracter 
         cadena = str(binario)
         #print(cadena)
         arrayBytes = []
@@ -388,6 +459,14 @@ class codificarExcel:
         return arrayBytes                
 
     def array_binarios_a_RGB(self,arrayBinario):
+        """
+            Funcion que convierte un arreglo de bytes en binario a sus valor respectiivos en decimal o RGB
+
+            Argumentos:
+                arrayBinario: arreglo a convertir
+
+            Retorna: arreglo convertido
+        """
         arrayDecimales = []
         for binario in arrayBinario:
             # Validar si la cadena es un número binario válido
@@ -399,8 +478,8 @@ class codificarExcel:
             longitud = len(binario)
 
             for i in range(longitud):
-                # Convertir el bit a decimal
-                bit = int(binario[longitud - 1 - i])  # Leer desde el final
+                # Convertir el bit a decimal y leerlo desde el final
+                bit = int(binario[longitud - 1 - i])  
                 decimal += bit * (2 ** i)
 
             arrayDecimales.append(decimal)
@@ -440,9 +519,9 @@ if __name__ == "__main__":
     codificar = codificarExcel(origen=args.archivoEntrenamiento,destino=args.carpetaSalida,columnaClasificadora=args.columnaClasificadora,ancho=args.anchoImagenes,alto=args.altoImagenes)
 
 
-    #print(codificar.decimal_a_binario_24bits(codificar.elMayor))
-    #print(codificar.decimal_a_binario_24bits(codificar.elMenor))
-    #print(codificar.decimal_a_binario_24bits(1114111))
+    #print(codificar.decialABinario24(codificar.elMayor))
+    #print(codificar.decialABinario24(codificar.elMenor))
+    #print(codificar.decialABinario24(1114111))
     #print(codificar.dividirBinarioenBytes("12345678abcdefghABCDEFGH"))
-    #print(codificar.dividirBinarioenBytes(codificar.decimal_a_binario_24bits(1114111)))
-    #print(codificar.array_binarios_a_RGB(codificar.dividirBinarioenBytes(codificar.decimal_a_binario_24bits(1114111))))
+    #print(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111)))
+    #print(codificar.array_binarios_a_RGB(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111))))

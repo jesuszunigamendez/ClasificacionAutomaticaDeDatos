@@ -13,10 +13,16 @@ import re
 
 class Clasificar:
     def __init__(self,*,rutaModelo,rutaArchivo,rutaDataSetClasificar,rutaResultado,ancho,alto):
+        """
+            Clase que permite clasificar las imagenes que se encuentran dentro de un directorio
+        """
         self.rutaModelo = rutaModelo
+        self.nombreModelo = self.rutaModelo.split('/')[-1]
+        self.nombreModelo = os.path.splitext(self.nombreModelo)[0]
         self.model = tf.keras.models.load_model(self.rutaModelo)
         self.rutaArchivo = rutaArchivo
         self.rutaDataSetClasificar = rutaDataSetClasificar
+        #se obtiene la lista de archivos para clasificacion
         self.archivosClasificar = [f for f in os.listdir(self.rutaDataSetClasificar) if f.endswith('.png')]
         self.rutaResultado = rutaResultado
         self.rutaClases = self.obtenerRutaClases()
@@ -27,6 +33,12 @@ class Clasificar:
         self.abrirExcel(rutaGuardada)
 
     def abrirExcel(self,ruta):
+        """
+            Funcion que permite abrir un archvio dada uuna ruta
+
+            Argumentos:
+                ruta: archivo a abrir
+        """
         # Abrir el archivo en el sistema operativo
         if platform.system() == "Windows":
             os.startfile(ruta)  # En Windows
@@ -36,10 +48,15 @@ class Clasificar:
             os.system(f"xdg-open {ruta}")  # En Linux
 
     def guardarExcel(self):
+        """"
+            Esta funcion guarda el excel que contiene las predicciones, usando el excel de procedencia de las firma 
+            y modificandolo de tal forma que se tenga la prediccion y la certeza de la misam
+        """
         # Obtener el nombre del archivo original sin la ruta completa
         nombreArchivo = os.path.basename(self.rutaArchivo)
         # Crear el nuevo nombre con el prefijo
-        nombreGuardar = f"Resultados_Para_{nombreArchivo}"
+        
+        nombreGuardar = f"Resultados__usando_modelo_{self.nombreModelo}_Para_{nombreArchivo}"
         # Combinar la nueva ruta y el nuevo nombre
         rutaGuardado = os.path.join(self.rutaResultado, nombreGuardar)
 
@@ -83,10 +100,13 @@ class Clasificar:
 
 
     # Función para clasificar la imagen
-    def classify_image(self,model, img_path, class_indices):
+    def clasificadorImagen(self,model, img_path, class_indices):
+        """
+            Funcion que permite clasificar una imagen usando un modelo preentrenado
+        """
         # Obtén la forma de entrada del modelo
         input_shape = model.input_shape[1:3]  # Esto es (img_shape, img_shape)
-        img = self.load_and_prep_image(img_path, input_shape[0])
+        img = self.cargarImagen(img_path, input_shape[0])
         prediction = model.predict(img)
         if class_indices:
             class_names = list(class_indices.keys())
@@ -97,7 +117,10 @@ class Clasificar:
             return None, None
         
     # Función para cargar y preprocesar la imagen
-    def load_and_prep_image(self, filename, img_shape):
+    def cargarImagen(self, filename, img_shape):
+        """
+            Funcion que permite obtener las caracteristicas de la imagen para permitir normalizarla 
+        """        
         img = image.load_img(filename, target_size=(img_shape, img_shape))
         img = image.img_to_array(img)
         img = np.expand_dims(img, axis=0)
@@ -105,35 +128,31 @@ class Clasificar:
         return img        
         
     def clasificar(self):
+        """
+            Funcion que permite clasificar las imagenes contenidas en un directorio
+        """
+        # se procesa imagen por  imagen
         for imagen in self.archivosClasificar:
             buscar = re.search(r"_(\d+)\.png$", imagen)
+            # si la imagen existe en el direc
             if buscar:
-                numero = buscar.group(1)  # Obtener el número como texto
+                #el formato del nombre de las imagenes ermina como Fila# entonces e obtiene ese # para permitir ubicarlo en el excel
+                numero = buscar.group(1) 
                 rutaImagen = self.rutaDataSetClasificar + "/" + imagen
-                prediccion, confianza = self.classify_image(self.model, rutaImagen, self.indices)
+                #se obtiene la prediccion para esta imagen y la confianza de la misma
+                prediccion, confianza = self.clasificadorImagen(self.model, rutaImagen, self.indices)
                 if prediccion is not None and confianza is not None:
                     self.arrayClasificar.append([numero,prediccion,confianza])
                 else:
                     self.arrayClasificar.append([numero,"Fail","0"])
             else:
-                print("Error al procesar la firma " + imagen)
-            
-
-        
-    def clasificarMetdo2(self,ruta_imagen,img_height,img_width):
-        img = cv2.imread(ruta_imagen)
-        img = cv2.resize(img, (img_height, img_width))
-        img = img / 255.0  # Normalizar como en el entrenamiento
-        img = np.expand_dims(img, axis=0)  # Añadir dimensión para batch
-        # Realizar predicción
-        prediccion = self.model.predict(img)
-        clase_predicha = np.argmax(prediccion)  # Índice de la categoría más probable
-        etiqueta_predicha = self.train_generator.class_indices.keys()  # Obtener nombres de categorías
-        ########################################################
-        return list(etiqueta_predicha)[clase_predicha]        
+                print("Error al procesar la firma " + imagen)     
     
 
     def obtenerIndices(self):
+        """
+            Funcion que permiute obtener los indices de un archivo JSON
+        """
         indices = None
         try:
             with open(self.rutaClases, 'r') as f:
@@ -143,6 +162,9 @@ class Clasificar:
             return None
         
     def obtenerRutaClases(self):
+        """
+            Funcion que se encarga de generar la ruta de las clases con las que se clasificara
+        """
         partes = self.rutaModelo.split("/")
         ruta = ""
         for parte in partes:
@@ -152,88 +174,3 @@ class Clasificar:
             else:
                 ruta = ruta + parte + "/"
         return ruta
-
-
-# # Función para predecir la categoría de una imagen nueva
-# def predecir_categoria(ruta_imagen):
-#     img = cv2.imread(ruta_imagen)
-#     img = cv2.resize(img, (img_height, img_width))
-#     img = img / 255.0  # Normalizar como en el entrenamiento
-#     img = np.expand_dims(img, axis=0)  # Añadir dimensión para batch
-
-#     # Realizar predicción
-#     prediccion = model.predict(img)
-#     clase_predicha = np.argmax(prediccion)  # Índice de la categoría más probable
-#     etiqueta_predicha = train_generator.class_indices.keys()  # Obtener nombres de categorías
-    
-#     return list(etiqueta_predicha)[clase_predicha]
-
-
-# # Ejemplo de uso
-# ruta_imagen_nueva = 'ruta/a/tu/imagen.jpg'  # Cambia esto a la ruta de una imagen de prueba
-# categoria = predecir_categoria(ruta_imagen_nueva)
-# print("La categoría de la imagen es:", categoria)
-
-
-
-# Función para cargar el modelo
-# def load_model():
-#     root = tk.Tk()
-#     root.withdraw()
-#     file_path = filedialog.askopenfilename(title='Seleccionar archivo del modelo', filetypes=[('Modelo HDF5', '*.h5')])
-#     print(file_path)
-#     if file_path:
-#         model = tf.keras.models.load_model(file_path)
-#         print(model)
-#         return model, file_path
-#     else:
-#         return None, None 
-
-
-
-
-
-
-
-# print("aqui")
-# # Cargar el modelo
-# model, model_path = load_model()
-
-# Verificar si se cargó correctamente el modelo
-# if model is None:
-#     print('No se seleccionó ningún modelo. Por favor, selecciona un archivo de modelo HDF5 (.h5).')
-# else:
-    # Intentar cargar los índices de las clases desde un archivo JSON asociado al modelo
-    #    class_indices = None
-    # partes = model_path.split("/")
-    # ruta = ""
-    # for parte in partes:
-    #     if parte.endswith(".h5"):
-    #         ruta = ruta + "class_indices.json"
-    #     else:
-    #         ruta = ruta + parte + "/"
-    # print(model_path)
-    # print(ruta)            
-    # json_path = ruta
-    # try:
-    #     with open(json_path, 'r') as f:
-    #         class_indices = json.load(f)
-    #         print('Índices de las clases cargados desde JSON.')
-    # except FileNotFoundError:
-    #     print('No se encontró el archivo de índices de las clases JSON asociado al modelo.')
-
-    # Clasificar una nueva imagen seleccionada por el usuario
-    # while True:
-    #     root = tk.Tk()
-    #     root.withdraw()
-    #     img_path = filedialog.askopenfilename(title='Seleccionar imagen para clasificar')
-    #     print(img_path)
-    #     if img_path:
-    #         predicted_class, confidence = classify_image(model, img_path, class_indices)
-    #         if predicted_class is not None and confidence is not None:
-    #             print(f'La imagen fue clasificada como: {predicted_class} con una confianza de: {confidence:.2f}')
-    #         else:
-    #             print('No se pudo realizar la clasificación debido a un problema con class_indices.')
-    #     else:
-    #         print('No se seleccionó ninguna imagen para clasificar.')
-    #         break

@@ -3,6 +3,7 @@ import openpyxl
 import os
 import tkinter as tk
 import time
+import sys
 
 
 def seleccionarArchivo(nombre,extension):
@@ -22,7 +23,7 @@ def seleccionarArchivo(nombre,extension):
     else:
         return None
     
-def obtenerColumna(archivo,tabs=""):
+def obtenerColumna(archivo,tabs="",excluir=False):
     """"
         Funcion que permite obtener el nombre de la columna a clasificar
         Argumentos:
@@ -39,6 +40,8 @@ def obtenerColumna(archivo,tabs=""):
             for celda in fila:
                 print(tabs,contador,". ",celda)
                 contador = contador + 1
+            if excluir:
+                print(tabs,0,". No excluir ninguna",)
             while True:
                 seleccion = input(tabs)
                 try:
@@ -49,6 +52,8 @@ def obtenerColumna(archivo,tabs=""):
                             if contador == a:
                                 return [contador,celda]
                             contador = contador + 1
+                    elif a == 0 and excluir:
+                        return [0,"SinCeldaExcluida"]
                     else:
                         a = 1 /0 
                 except Exception as e:
@@ -100,21 +105,25 @@ if __name__ == "__main__":
         #    os.system('clear')
         #elif os.name == 'nt':
         #    os.system('cls')
-        tabMenu = " "            
+        tabMenu = " "    
+        #se imprime el menu        
         print()
         print("Seleccione una opcion")
         print(tabMenu,"1 . Generar Firmas")
         print(tabMenu,"2 . Entrenar modelo")
         print(tabMenu,"3 . Clasificar Datos")
+        print(tabMenu,"4 . Evaluar Resultados")
         print(tabMenu,"0 . Salir")
         print()
         seleccion = input()
         try:
+            # se verifica que lo ingresado sea numerico y que este en el rango
             a = int(seleccion)
-            if a < 0 and a >3:
+            if a < 0 and a >4:
                 a = 1 / 0
             else:
                 menu1 = a
+            # if else que corrobora cada opcion
             if menu1 == 1:
                 tabMenu = "         "            
                 #variables necesarias para instanciar el objeto
@@ -169,6 +178,7 @@ if __name__ == "__main__":
                     seleccion = input("Presione enter para generar las firmas o digite 0 para salir sin generar")
                     if seleccion != "0":
                         firmas = generarFirmasGraficas.codificarExcel(origen=archivoOrigen,destino=carpetaDestino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen)
+            #opcion dos del menu                        
             elif menu1 == 2:
                 tabMenu = "         "            
                 flagMenuPrincipal = False
@@ -203,20 +213,16 @@ if __name__ == "__main__":
                     while True:
                         try:
                             print(tabMenu,"Seleccione el tipo de modelo a entrenar")
-                            print(tabMenu,"1. original")
-                            print(tabMenu,"2. cnn")
-                            print(tabMenu,"3. dnn")                            
+                            print(tabMenu,"1. Red neuronal convolucional CNN")
+                            print(tabMenu,"2. Red completamente conectada FCN")                          
                             print
                             seleccion = input()
                             a = int(seleccion)
                             if a == 1:
-                                tipo = "original"
-                                break
-                            elif a == 2:
                                 tipo = "cnn"
                                 break
                             elif a == 3:
-                                tipo = "dnn"
+                                tipo = "fcn"
                                 break
                             else:
                                 a = 1/0
@@ -225,6 +231,7 @@ if __name__ == "__main__":
                     from scripts import entrenamiento
                     entrenamiento.Modelos(dataSet=origen,destino=destino,tipo=tipo)
                     print("terminado")
+            #opcion 3 del menu
             elif menu1 == 3:
                 tabMenu = "         "            
                 flagMenuPrincipal = False
@@ -250,6 +257,8 @@ if __name__ == "__main__":
                             flagMenuPrincipal = True
                             break
                     else:
+                        print(tabMenu,"Seleccione la Columna a excluir (Esto es si su archivo contiene valores de referencia ).")
+                        columnaClasificadora = obtenerColumna(archivoClasificar,tabs=tabMenu,excluir=True)
                         break
                 while flagMenuPrincipal == False:
                     print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardaran los resultados")
@@ -268,10 +277,29 @@ if __name__ == "__main__":
                 if not flagMenuPrincipal:
                     from scripts import clasificacion
                     from scripts import generarFirmasGraficas
-                    destino = destino + "/"
-                    firmas = generarFirmasGraficas.codificarExcel(origen=archivoClasificar,destino=destino,columnaClasificadora="",ancho=anchoImagen,alto=altoImagen, modo="clasificar")
-                    rutaDataSet = destino + "FirmasTemporales"
+                    firmas = generarFirmasGraficas.codificarExcel(origen=archivoClasificar,destino=destino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen, modo="clasificar")
+                    rutaDataSet = firmas.carpetaDestinoPrincipal + "FirmasTemporales"
                     clasificar = clasificacion.Clasificar(rutaModelo=rutaModelo,rutaArchivo=archivoClasificar,rutaDataSetClasificar=rutaDataSet,rutaResultado=destino,ancho=anchoImagen,alto=altoImagen)
+            elif menu1 == 4:
+                tabMenu = "         "            
+                flagMenuPrincipal = False
+                while flagMenuPrincipal == False:
+                    print(tabMenu,"Utilice el dialogo del sistema para seleccionar el archivo a clasificar")
+                    archivoEvaluar = seleccionarArchivo("Excel","*.xlsx")
+                    if not archivoEvaluar:
+                        print(tabMenu,"Debe seleccionar un archivo para continuar o si desea volver al menu ingrese 0 (presione enter)")
+                        a = input()
+                        if a == "0":
+                            flagMenuPrincipal = True
+                            break
+                    else:
+                        print(tabMenu,"Seleccione la columna que contiene las etiquetas verdaderas.")
+                        verdaderas = obtenerColumna(archivoEvaluar,tabs=tabMenu)
+                        print(tabMenu,"Seleccione la columna que contiene las etiquetas predichas.")
+                        predichas = obtenerColumna(archivoEvaluar,tabs=tabMenu)                        
+                        from scripts import evaluar
+                        evaluacion = evaluar.evaluar(rutaArchivo=archivoEvaluar,columnaVerdadera=verdaderas,columnaPredicha=predichas)
+                        break
             elif menu1 == 0:
                 break                    
         except Exception as e:
