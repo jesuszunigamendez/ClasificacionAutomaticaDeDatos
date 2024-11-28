@@ -257,8 +257,8 @@ class codificarExcel:
             Retorna 
         """
         # si alguna de las dos variables es cero significa que el programa debe definir el tamanio del archivo de salida
-        anchoMayor = 0
-        altoMayor = 0
+        anchoMayor = 1
+        altoMayor = 1
         contadorAncho = 0
         #Variables de tamanio de archivo
         alto = self.altoImagenes
@@ -268,7 +268,9 @@ class codificarExcel:
             for pixel in arrayRGB:
                 if pixel != [256,256,256]:
                     contadorAncho = contadorAncho + 1
+                    print(contadorAncho,pixel,end="")
                 else:
+                    print(pixel)
                     if contadorAncho > anchoMayor:
                         anchoMayor = contadorAncho
                     contadorAncho = 0
@@ -287,8 +289,11 @@ class codificarExcel:
         #print("Alto a guardar",alto)
 
         # se crea una nueva imagen en modo RGB
+        print("Tama;os",ancho,alto)
+        ancho = ancho + 1
+        alto = alto + 1
         try:
-            imagen = Image.new("RGB", (ancho, alto+1), "white")  # Color de fondo blanco por defecto
+            imagen = Image.new("RGB", (ancho, alto), "white")  # Color de fondo blanco por defecto
         except Exception as e:
             print("Ocurrio un error al generar la firma grafica")
             print(e)
@@ -299,10 +304,17 @@ class codificarExcel:
         #print("Los valores rgb a guardarse como imagen en  ",CarpetaDestino)        
         x = 0
         y = 0
+        contador = 0
         for pixel in arrayRGB:
+            contador = contador + 1
             if pixel != [256,256,256]:
                 #print(pixel,end="")
-                imagen.putpixel((x, y), tuple(pixel))
+                try:
+                    imagen.putpixel((x, y), tuple(pixel))
+                except Exception as e:
+                    print(e)
+                    print(pixel)
+                    sys.exit()
                 x = x + 1
             else:
                 #print("")
@@ -311,7 +323,7 @@ class codificarExcel:
         ## Primer píxel (fila 1, columna 1)
         #imagen.putpixel((1, 0), tuple(pixeles_rgb[1]))  # Segundo píxel (fila 1, columna 2)
         #imagen.putpixel((0, 1), tuple(pixeles_rgb[2]))  # Tercer píxel (fila 2, columna 1)
-
+        print("el for afuera")
         # Crear la carpeta si no existe
         if not os.path.exists(CarpetaDestino):
             os.makedirs(CarpetaDestino)
