@@ -263,7 +263,7 @@ if __name__ == "__main__":
                             flagMenuPrincipal = True
                             break
                     else:
-                        print(tabMenu,"Seleccione la Columna a excluir (Esto es si su archivo contiene valores de referencia ).")
+                        print(tabMenu,"Seleccione la columna a excluir")
                         columnaClasificadora = obtenerColumna(archivoClasificar,tabs=tabMenu,excluir=True)
                         break
                 while flagMenuPrincipal == False:
@@ -292,7 +292,7 @@ if __name__ == "__main__":
                 tabMenu = "         "            
                 flagMenuPrincipal = False
                 while flagMenuPrincipal == False:
-                    print(tabMenu,"Utilice el dialogo del sistema para seleccionar el archivo a clasificar")
+                    print(tabMenu,"Utilice el dialogo del sistema para seleccionar el archivo a evaluar")
                     archivoEvaluar = seleccionarArchivo("Excel","*.xlsx")
                     if not archivoEvaluar:
                         print(tabMenu,"Debe seleccionar un archivo para continuar o si desea volver al menu ingrese 0 (presione enter)")

@@ -95,10 +95,6 @@ class Clasificar:
         return rutaGuardado
 
 
-
-
-
-
     # Función para clasificar la imagen
     def clasificadorImagen(self,model, img_path, class_indices):
         """
