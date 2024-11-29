@@ -56,7 +56,7 @@ class Clasificar:
         nombreArchivo = os.path.basename(self.rutaArchivo)
         # Crear el nuevo nombre con el prefijo
         
-        nombreGuardar = f"Resultados__usando_modelo_{self.nombreModelo}_Para_{nombreArchivo}"
+        nombreGuardar = f"Predicciones_segun_{self.nombreModelo}_para_{nombreArchivo}"
         # Combinar la nueva ruta y el nuevo nombre
         rutaGuardado = os.path.join(self.rutaResultado, nombreGuardar)
 
@@ -70,8 +70,8 @@ class Clasificar:
         num_columnas = hoja.max_column
 
         # Agregar encabezados en la primera fila de las nuevas columnas
-        hoja.cell(row=1, column=num_columnas + 1, value="Resultado")
-        hoja.cell(row=1, column=num_columnas + 2, value="Certeza %")
+        hoja.cell(row=1, column=num_columnas + 1, value="PREDICCION")
+        hoja.cell(row=1, column=num_columnas + 2, value="CERTEZA %")
 
         # Recorrer las filas desde la segunda para agregar los datos
         contadorFila = 1

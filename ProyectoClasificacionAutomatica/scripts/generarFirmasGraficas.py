@@ -22,22 +22,25 @@ class codificarExcel:
             Retorna:
         """
         self.archivoOrigen = origen
-        corrida = datetime.now().strftime("%d_%m_%y_%H_%M_%S")
-        self.carpetaDestinoPrincipal = destino + "/" + str(corrida) + "_"
-        print("aquii")
-        print(self.carpetaDestinoPrincipal)
-        if os.path.exists(self.carpetaDestinoPrincipal):
-            shutil.rmtree(self.carpetaDestinoPrincipal)
+        #print(self.carpetaDestinoPrincipal)
         self.elMayor = 0
         self.elMenor = 0
         self.anchoImagenes = ancho
         self.altoImagenes = alto
         self.columnaClasificadora = columnaClasificadora
         if modo == "entrenar":
+            self.carpetaDestinoPrincipal = destino + "/"
+            #if os.path.exists(self.carpetaDestinoPrincipal):
+            #    shutil.rmtree(self.carpetaDestinoPrincipal)            
             self.procesarArchivo()
         else:
+            self.carpetaDestinoPrincipal = destino + "/"
+            self.carpetaDestinoSecundaria = ""
+            #if os.path.exists(self.carpetaDestinoPrincipal):
+            #    shutil.rmtree(self.carpetaDestinoPrincipal)            
             self.generarImagenesDeArchivo()
         print("Archivo procesado correctamente")
+        #self.guardarImagen(arrayRGB="",CarpetaDestino="",nombreimagen="")
 
 
 
@@ -52,7 +55,9 @@ class codificarExcel:
         #se inicializan variables
         numeroFila = 0
         numeroCelda = 0
-        CarpetaDestino = "FirmasTemporales"
+        corrida = datetime.now().strftime("%d_%m_%y_%H_%M_%S")
+        CarpetaDestino = "Firmas_Clasificar" + "_" + str(corrida) 
+        self.carpetaDestinoSecundaria = CarpetaDestino
         #self.columnaClasificadora = 10
         # for que recorre fila for fila
         for fila in hoja.iter_rows(values_only=True):
@@ -69,7 +74,8 @@ class codificarExcel:
                 # si son las demas filas entonces se procesa cada celda como una linea de pixeles para la imagen 
                 if (numeroFila != 1):# and (identificadorCelda != 0):
                     if numeroCelda == self.columnaClasificadora:
-                        print("excluida",celda)
+                        a = 1
+                        #print("excluida",celda)
                     else:
                         #if numeroCelda == self.columnaClasificadora
                         # todo el valor de la celda se convierte en un arreglo de valores unicode convertidos a decimal
@@ -256,84 +262,79 @@ class codificarExcel:
                 nombreimagen: combre de la imagen a guardar
             Retorna 
         """
-        # si alguna de las dos variables es cero significa que el programa debe definir el tamanio del archivo de salida
-        anchoMayor = 1
-        altoMayor = 1
-        contadorAncho = 0
-        #Variables de tamanio de archivo
-        alto = self.altoImagenes
-        ancho = self.anchoImagenes
-        # Si alguna de las dos variables es cero se debe ajustar el tamanio a el maximo necesario para los datos 
-        if (self.anchoImagenes == 0) or (self.altoImagenes == 0):
+        #arrayRGB = [[256,256,256],[0,0,0],[0,0,0]]
+        if len(arrayRGB) == 0:
+            print("Error. El arreglo de pixeles para " + str(nombreimagen) + " esta vacio") 
+        else:
+            # se calcula el tamanio de la imagen que se generara
+            ancho = 1
+            alto = 1
+            anchoMayor = 0
             for pixel in arrayRGB:
-                if pixel != [256,256,256]:
-                    contadorAncho = contadorAncho + 1
-                    print(contadorAncho,pixel,end="")
+                if pixel == [256,256,256]:
+                    alto = alto + 1
+                    ancho = 1
                 else:
-                    print(pixel)
-                    if contadorAncho > anchoMayor:
-                        anchoMayor = contadorAncho
-                    contadorAncho = 0
-                    altoMayor = altoMayor + 1
-            if self.anchoImagenes == 0:
-                ancho = anchoMayor
-            if self.altoImagenes == 0:
-                alto = altoMayor
-        if (anchoMayor > ancho):
-            print("El ancho en pixeles necesario para escribir la imagen " + nombreimagen + " es mayor a (" + str(ancho) + ") por lo que se ajusto al tamaño necesario (" + str(anchoMayor) + ")")
+                    if ancho > anchoMayor:
+                        anchoMayor = ancho
+                    ancho = ancho + 1                        
             ancho = anchoMayor
-        if (altoMayor > alto):
-            print("El alto en pixeles necesario para escribir la imagen " + nombreimagen + " es mayor a (" + str(alto) + ") por lo que se ajusto al tamaño necesario (" + str(altoMayor) + ")")            
-            alto = altoMayor
-        #print("Ancho a guardar",ancho)
-        #print("Alto a guardar",alto)
 
-        # se crea una nueva imagen en modo RGB
-        print("Tama;os",ancho,alto)
-        ancho = ancho + 1
-        alto = alto + 1
-        try:
-            imagen = Image.new("RGB", (ancho, alto), "white")  # Color de fondo blanco por defecto
-        except Exception as e:
-            print("Ocurrio un error al generar la firma grafica")
-            print(e)
-            return 0
-        CarpetaDestino = self.carpetaDestinoPrincipal + CarpetaDestino
-        #print(CarpetaDestino)
-        # se asignan los valores RGB a cada píxel
-        #print("Los valores rgb a guardarse como imagen en  ",CarpetaDestino)        
-        x = 0
-        y = 0
-        contador = 0
-        for pixel in arrayRGB:
-            contador = contador + 1
-            if pixel != [256,256,256]:
-                #print(pixel,end="")
-                try:
-                    imagen.putpixel((x, y), tuple(pixel))
-                except Exception as e:
-                    print(e)
-                    print(pixel)
-                    sys.exit()
-                x = x + 1
-            else:
-                #print("")
-                y = y + 1
-                x = 0
-        ## Primer píxel (fila 1, columna 1)
-        #imagen.putpixel((1, 0), tuple(pixeles_rgb[1]))  # Segundo píxel (fila 1, columna 2)
-        #imagen.putpixel((0, 1), tuple(pixeles_rgb[2]))  # Tercer píxel (fila 2, columna 1)
-        print("el for afuera")
-        # Crear la carpeta si no existe
-        if not os.path.exists(CarpetaDestino):
-            os.makedirs(CarpetaDestino)
+            if self.altoImagenes != 0:
+                if self.altoImagenes > alto:
+                    alto = self.altoImagenes
+                else:
+                    print("El alto en pixeles necesario para escribir la imagen " + nombreimagen + " es mayor a (" + str(self.altoImagenes) + ") por lo que se ajusto al tamaño necesario (" + str(alto) + ")")
+
+            if self.anchoImagenes != 0:
+                if self.anchoImagenes > ancho:
+                    ancho = self.anchoImagenes
+                else:
+                    print("El ancho en pixeles necesario para escribir la imagen " + nombreimagen + " es mayor a (" + str(ancho) + ") por lo que se ajusto al tamaño necesario (" + str(anchoMayor) + ")")
+
+
+            # se crea una nueva imagen en modo RGB
+            try:
+                imagen = Image.new("RGB", (ancho, alto), "white")  # Color de fondo blanco por defecto
+            except Exception as e:
+                print("Ocurrio un error al generar la firma grafica")
+                print(e)
+                return 0
+            CarpetaDestino = self.carpetaDestinoPrincipal + CarpetaDestino
+            #print(CarpetaDestino)
+            # se asignan los valores RGB a cada píxel
+            #print("Los valores rgb a guardarse como imagen en  ",CarpetaDestino)        
+            x = 0
+            y = 0
+            contador = 0
+            for pixel in arrayRGB:
+                contador = contador + 1
+                if pixel != [256,256,256]:
+                    #print(pixel,end="")
+                    try:
+                        imagen.putpixel((x, y), tuple(pixel))
+                    except Exception as e:
+                        print(e)
+                        print(pixel)
+                        sys.exit()
+                    x = x + 1
+                else:
+                    #print("")
+                    y = y + 1
+                    x = 0
+            ## Primer píxel (fila 1, columna 1)
+            #imagen.putpixel((1, 0), tuple(pixeles_rgb[1]))  # Segundo píxel (fila 1, columna 2)
+            #imagen.putpixel((0, 1), tuple(pixeles_rgb[2]))  # Tercer píxel (fila 2, columna 1)
+            # Crear la carpeta si no existe
+            if not os.path.exists(CarpetaDestino):
+                os.makedirs(CarpetaDestino)
     
-        # Guardar la imagen en la carpeta correspondiente
-        ruta_imagen = os.path.join(CarpetaDestino, nombreimagen)
-        #print(ruta_imagen)
-        imagen.save(ruta_imagen)
+            # Guardar la imagen en la carpeta correspondiente
+            ruta_imagen = os.path.join(CarpetaDestino, nombreimagen)
+            #print(ruta_imagen)
+            imagen.save(ruta_imagen)
     
-        #print(f"Imagen guardada en '{ruta_imagen}'")
+            #print(f"Imagen guardada en '{ruta_imagen}'")
 
 
 
@@ -516,24 +517,25 @@ class codificarExcel:
 
 
 if __name__ == "__main__":
-    # Configurar el analizador de argumentos
-    parser = argparse.ArgumentParser(description="Argumentos que permiten ejecutar el programa")
-    # Agregar argumentos
-    parser.add_argument("--archivoEntrenamiento", type=str, required=True, default="",                  help="Nombre del archivo que se va a procesar")
-    parser.add_argument("--carpetaSalida",        type=str               , default="Resultado/",      help="Nombre de la carpeta donde se va a guardar")
-    parser.add_argument("--columnaClasificadora", type=int, required=True, default="",                  help="Columna que permitira la clasificacion de cada registro")
-    parser.add_argument("--anchoImagenes",        type=int,                default=0,                   help="Ancho de la imagen a generar")  
-    parser.add_argument("--altoImagenes",         type=int,                default=0,                   help="Alto de la imagen a generar")  
-    parser.add_argument("--listaCategorias",      type=str,                default="",                  help="Lista de categorias, se compone de [[Columna1Categoria1,Columna2Categoria1,...],[[Columna1Categoria2,Columna2Categoria2,...],[.........]]")  
-    args = parser.parse_args()
+    c = codificarExcel()
+    # # Configurar el analizador de argumentos
+    # parser = argparse.ArgumentParser(description="Argumentos que permiten ejecutar el programa")
+    # # Agregar argumentos
+    # parser.add_argument("--archivoEntrenamiento", type=str, required=True, default="",                  help="Nombre del archivo que se va a procesar")
+    # parser.add_argument("--carpetaSalida",        type=str               , default="Resultado/",      help="Nombre de la carpeta donde se va a guardar")
+    # parser.add_argument("--columnaClasificadora", type=int, required=True, default="",                  help="Columna que permitira la clasificacion de cada registro")
+    # parser.add_argument("--anchoImagenes",        type=int,                default=0,                   help="Ancho de la imagen a generar")  
+    # parser.add_argument("--altoImagenes",         type=int,                default=0,                   help="Alto de la imagen a generar")  
+    # parser.add_argument("--listaCategorias",      type=str,                default="",                  help="Lista de categorias, se compone de [[Columna1Categoria1,Columna2Categoria1,...],[[Columna1Categoria2,Columna2Categoria2,...],[.........]]")  
+    # args = parser.parse_args()
 
-    #codificar = codificarExcel('./DummieDataSet.xlsx','./ResultDataSet.xlsx',"NeedRV",100,100)
-    codificar = codificarExcel(origen=args.archivoEntrenamiento,destino=args.carpetaSalida,columnaClasificadora=args.columnaClasificadora,ancho=args.anchoImagenes,alto=args.altoImagenes)
+    # #codificar = codificarExcel('./DummieDataSet.xlsx','./ResultDataSet.xlsx',"NeedRV",100,100)
+    # codificar = codificarExcel(origen=args.archivoEntrenamiento,destino=args.carpetaSalida,columnaClasificadora=args.columnaClasificadora,ancho=args.anchoImagenes,alto=args.altoImagenes)
 
 
-    #print(codificar.decialABinario24(codificar.elMayor))
-    #print(codificar.decialABinario24(codificar.elMenor))
-    #print(codificar.decialABinario24(1114111))
-    #print(codificar.dividirBinarioenBytes("12345678abcdefghABCDEFGH"))
-    #print(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111)))
-    #print(codificar.array_binarios_a_RGB(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111))))
+    # #print(codificar.decialABinario24(codificar.elMayor))
+    # #print(codificar.decialABinario24(codificar.elMenor))
+    # #print(codificar.decialABinario24(1114111))
+    # #print(codificar.dividirBinarioenBytes("12345678abcdefghABCDEFGH"))
+    # #print(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111)))
+    # #print(codificar.array_binarios_a_RGB(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111))))

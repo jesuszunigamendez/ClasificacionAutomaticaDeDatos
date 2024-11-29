@@ -4,6 +4,7 @@ import os
 import tkinter as tk
 import time
 import sys
+from datetime import datetime
 
 
 def seleccionarArchivo(nombre,extension):
@@ -15,8 +16,10 @@ def seleccionarArchivo(nombre,extension):
         Retorna:
             String con el archivo seleccionado o None en caso de no seleccionar ninguno
     """
+    os.chdir(os.getcwd())
     root = tk.Tk()
     root.withdraw()
+    root.focus_force()
     file = filedialog.askopenfilename(title='Seleccionar archivo fuente', filetypes=[(nombre, extension)])
     if file:
         return file
@@ -46,12 +49,12 @@ def obtenerColumna(archivo,tabs="",excluir=False):
                 seleccion = input(tabs)
                 try:
                     a = int(seleccion)
-                    if a > 0 and a <= contador:
-                        contador = 1
+                    if a > 0 and a < contador:
+                        contador2 = 1
                         for celda in fila:
-                            if contador == a:
-                                return [contador,celda]
-                            contador = contador + 1
+                            if contador2 == a:
+                                return [contador2,celda]
+                            contador2 = contador2 + 1
                     elif a == 0 and excluir:
                         return [0,"SinCeldaExcluida"]
                     else:
@@ -139,14 +142,16 @@ if __name__ == "__main__":
                             break
                     else:
                         break
+
                 if not flagMenuPrincipal:            
                     print(tabMenu,"Seleccione la celda con la que se clasificaran las firmas.")
                     columnaClasificadora = obtenerColumna(archivoOrigen,tabs=tabMenu)
-                    anchoImagen = obtenerDimension("Ancho",tabs=tabMenu)
-                    altoImagen = obtenerDimension("Alto",tabs=tabMenu)
+                    anchoImagen = 0#obtenerDimension("Ancho",tabs=tabMenu)
+                    altoImagen = 0#obtenerDimension("Alto",tabs=tabMenu)
                     while True:
-                        print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardaran las firmas")
-                        carpetaDestino = obtenerDirectorio()
+                        carpetaDestino = os.path.dirname(archivoOrigen) + "/" + "Firmas_Fuente_" + str(datetime.now().strftime("%d_%m_%y_%H_%M_%S"))
+                        #print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardaran las firmas")
+                        #carpetaDestino = obtenerDirectorio()
                         if not carpetaDestino:
                             print(tabMenu,"Debe seleccionar una carpeta para continuar o si desea volver al menu ingrese 0 (presione enter)")
                             a = input()
@@ -159,25 +164,25 @@ if __name__ == "__main__":
 
                 if not flagMenuPrincipal:
                     from scripts import generarFirmasGraficas
-                                        
-
-                    print("Las firmas se generan con los siguienbtes datos: ")
-                    print("Archivo fuente: ",archivoOrigen)
-                    print("Celda clasificadora:", columnaClasificadora[1])
-                    if anchoImagen == 0:
-                        print("Ancho de las firmas: Dinamico")
-                    else:
-                        print("Ancho de las firmas ",anchoImagen)
-                    if altoImagen == 0:
-                        print("Alto de las firmas: Dinamico")
-                    else:
-                        print("Alto de las firmas ",altoImagen)                 
-                    carpetaDestino = carpetaDestino + "/"   
-                    print("Carpeta destino",carpetaDestino)
-                    print()
-                    seleccion = input("Presione enter para generar las firmas o digite 0 para salir sin generar")
-                    if seleccion != "0":
-                        firmas = generarFirmasGraficas.codificarExcel(origen=archivoOrigen,destino=carpetaDestino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen)
+                    firmas = generarFirmasGraficas.codificarExcel(origen=archivoOrigen,destino=carpetaDestino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen)                                                        
+                    #print("Las firmas se generan con los siguienbtes datos: ")
+                    #print("Archivo fuente: ",archivoOrigen)
+                    #print("Celda clasificadora:", columnaClasificadora[1])
+                    #if anchoImagen == 0:
+                    #    print("Ancho de las firmas: Dinamico")
+                    #else:
+                    #    print("Ancho de las firmas ",anchoImagen)
+                    #if altoImagen == 0:
+                    #    print("Alto de las firmas: Dinamico")
+                    #else:
+                    #    print("Alto de las firmas ",altoImagen)                 
+                    #carpetaDestino = carpetaDestino + "/"   
+                    #print("Carpeta destino",carpetaDestino)
+                    #print()
+                    #seleccion = input("Presione enter para generar las firmas o digite 0 para salir sin generar")
+                    #if seleccion != "0":
+                    #    firmas = generarFirmasGraficas.codificarExcel(origen=archivoOrigen,destino=carpetaDestino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen)
+                    
             #opcion dos del menu                        
             elif menu1 == 2:
                 tabMenu = "         "            
@@ -194,8 +199,9 @@ if __name__ == "__main__":
                     else:
                         break
                 while flagMenuPrincipal == False:
-                    print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardara el modelo")
-                    destino = obtenerDirectorio()
+                    destino = os.path.dirname(origen)
+                    #print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardara el modelo")
+                    #destino = obtenerDirectorio()
                     if not destino:
                         print(tabMenu,"Debe seleccionar una carpeta para continuar o si desea volver al menu ingrese 0 (presione enter)")
                         a = input()
@@ -208,8 +214,8 @@ if __name__ == "__main__":
                     origen = origen + "/"
                     destino = destino + "/"
                     tipo = ""
-                    print(origen)
-                    print(destino)
+                    #print(origen)
+                    #print(destino)
                     while True:
                         try:
                             print(tabMenu,"Seleccione el tipo de modelo a entrenar")
@@ -219,10 +225,10 @@ if __name__ == "__main__":
                             seleccion = input()
                             a = int(seleccion)
                             if a == 1:
-                                tipo = "cnn"
+                                tipo = "CNN"
                                 break
-                            elif a == 3:
-                                tipo = "fcn"
+                            elif a == 2:
+                                tipo = "FCN"
                                 break
                             else:
                                 a = 1/0
@@ -261,8 +267,10 @@ if __name__ == "__main__":
                         columnaClasificadora = obtenerColumna(archivoClasificar,tabs=tabMenu,excluir=True)
                         break
                 while flagMenuPrincipal == False:
-                    print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardaran los resultados")
-                    destino = obtenerDirectorio()
+                    destino = os.path.dirname(archivoClasificar)
+                    #sys.exit()
+                    #print(tabMenu,"Utilice el dialogo del sistema para seleccionar la carpeta donde se guardaran los resultados")
+                    #destino = obtenerDirectorio()
                     if not destino:
                         print(tabMenu,"Debe seleccionar una carpeta para continuar o si desea volver al menu ingrese 0 (presione enter)")
                         a = input()
@@ -272,13 +280,13 @@ if __name__ == "__main__":
                     else:
                         break   
                 if not flagMenuPrincipal:            
-                    anchoImagen = obtenerDimension("Ancho",tabs=tabMenu)
-                    altoImagen = obtenerDimension("Alto",tabs=tabMenu)                                          
+                    anchoImagen = 0#obtenerDimension("Ancho",tabs=tabMenu)
+                    altoImagen = 0#obtenerDimension("Alto",tabs=tabMenu)                                          
                 if not flagMenuPrincipal:
                     from scripts import clasificacion
                     from scripts import generarFirmasGraficas
                     firmas = generarFirmasGraficas.codificarExcel(origen=archivoClasificar,destino=destino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen, modo="clasificar")
-                    rutaDataSet = firmas.carpetaDestinoPrincipal + "FirmasTemporales"
+                    rutaDataSet = firmas.carpetaDestinoPrincipal + firmas.carpetaDestinoSecundaria
                     clasificar = clasificacion.Clasificar(rutaModelo=rutaModelo,rutaArchivo=archivoClasificar,rutaDataSetClasificar=rutaDataSet,rutaResultado=destino,ancho=anchoImagen,alto=altoImagen)
             elif menu1 == 4:
                 tabMenu = "         "            

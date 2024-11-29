@@ -8,5 +8,4 @@ numpy
 matplotlib
 datetime
 tensorflow
-time
 scikit-learn

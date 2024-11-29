@@ -40,6 +40,7 @@ class Modelos:
         fecha = datetime.now()
         fecha = fecha.strftime("%Y_%m_%d_%H_%M_%S")
         self.modelName =  destino + "E=" + str(self.epochs) + "_B=" + str(self.batch_size) + "_Lr=" + str(self.learning_rate) + fecha + "_" + tipo
+        self.modelName =  destino + "Modelo_" + tipo + "_" + fecha
         self.class_name = self.modelName + ".json"
         self.guardarClases()
         self.crearDataGen()

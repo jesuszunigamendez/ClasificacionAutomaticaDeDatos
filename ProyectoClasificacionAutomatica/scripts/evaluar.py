@@ -17,11 +17,11 @@ class evaluar:
         self.arrayPredichos = self.obtenerArrayValores(self.columnaPredichos[0])
         #se da un correcto formato a los strings
         self.arrayPredichos= self.darFormato(self.arrayPredichos)
-        print(self.rutaArchivo) 
-        print(self.columnaVerdaderos) 
-        print(self.columnaPredichos) 
-        print(self.arrayVerdaderos)
-        print(self.arrayPredichos)
+        #print(self.rutaArchivo) 
+        #print(self.columnaVerdaderos) 
+        #print(self.columnaPredichos) 
+        #print(self.arrayVerdaderos)
+        #print(self.arrayPredichos)
         # Generar el reporte de clasificación
         report = classification_report(self.arrayVerdaderos, self.arrayPredichos)
         print(report)
@@ -71,6 +71,6 @@ class evaluar:
                 # se procesan todas las filas menos ;a primera
                 if (numeroFila != 1):# and (identificadorCelda != 0):
                     if numeroCelda == columna:
-                        arrayResultado.append(celda)
+                        arrayResultado.append(str(celda))
         return arrayResultado
 
