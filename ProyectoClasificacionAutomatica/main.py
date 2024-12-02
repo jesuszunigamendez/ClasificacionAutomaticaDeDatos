@@ -165,23 +165,7 @@ if __name__ == "__main__":
                 if not flagMenuPrincipal:
                     from scripts import generarFirmasGraficas
                     firmas = generarFirmasGraficas.codificarExcel(origen=archivoOrigen,destino=carpetaDestino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen)                                                        
-                    #print("Las firmas se generan con los siguienbtes datos: ")
-                    #print("Archivo fuente: ",archivoOrigen)
-                    #print("Celda clasificadora:", columnaClasificadora[1])
-                    #if anchoImagen == 0:
-                    #    print("Ancho de las firmas: Dinamico")
-                    #else:
-                    #    print("Ancho de las firmas ",anchoImagen)
-                    #if altoImagen == 0:
-                    #    print("Alto de las firmas: Dinamico")
-                    #else:
-                    #    print("Alto de las firmas ",altoImagen)                 
-                    #carpetaDestino = carpetaDestino + "/"   
-                    #print("Carpeta destino",carpetaDestino)
-                    #print()
-                    #seleccion = input("Presione enter para generar las firmas o digite 0 para salir sin generar")
-                    #if seleccion != "0":
-                    #    firmas = generarFirmasGraficas.codificarExcel(origen=archivoOrigen,destino=carpetaDestino,columnaClasificadora=columnaClasificadora[0],ancho=anchoImagen,alto=altoImagen)
+
                     
             #opcion dos del menu                        
             elif menu1 == 2:

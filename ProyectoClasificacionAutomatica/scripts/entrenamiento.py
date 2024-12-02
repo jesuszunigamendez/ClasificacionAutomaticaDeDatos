@@ -278,31 +278,6 @@ class Modelos:
         ])        
 
 
-    # def crearCNN(self):
-    #     self.model = models.Sequential([
-    #         layers.Conv2D(32, (3, 3), activation='relu', input_shape=(self.img_height, self.img_width, 3)),
-    #         layers.MaxPooling2D((2, 2)),
-    #         layers.Conv2D(64, (3, 3), activation='relu'),
-    #         layers.MaxPooling2D((2, 2)),
-    #         layers.Conv2D(128, (3, 3), activation='relu'),
-    #         layers.MaxPooling2D((2, 2)),
-    #         layers.Flatten(),
-    #         layers.Dense(128, activation='relu'),
-    #         layers.Dense(self.trainGeneratoro.num_classes, activation='softmax')  # Número de clases igual al número de carpetas
-    #     ])
-
-
-
-    # def imprimirDatosDeGeneradores(self):
-    #     print("Number of images per class in the training set:")
-    #     for self.class_name, class_index in self.trainGeneratoro.class_indices.items():
-    #         num_images = np.sum(self.trainGeneratoro.classes == class_index)
-    #         print(f"{self.class_name}: {num_images}")
-
-    #     print("\nNumber of images per class in the validation set:")
-    #     for self.class_name, class_index in self.validationGenerator.class_indices.items():
-    #         num_images = np.sum(self.validationGenerator.classes == class_index)
-    #         print(f"{self.class_name}: {num_images}")        
 
     def crearValidationGenerator(self):   
         """

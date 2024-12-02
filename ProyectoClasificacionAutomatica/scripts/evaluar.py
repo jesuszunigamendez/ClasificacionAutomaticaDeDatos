@@ -26,54 +26,10 @@ class evaluar:
         self.probabilidadesPredichas = self.obtenerArrayValores(columna=(self.columnaPredichos[0]+1))        
         #se da un correcto formato a los floats
         self.probabilidadesPredichas = self.darFormato(arreglo=self.probabilidadesPredichas,probabilidad=True)
-        #print(self.arrayVerdaderos)
-        #print(self.arrayPredichos)
-        #print(self.probabilidadesPredichas)
-        #print(self.rutaArchivo) 
-        #print(self.columnaVerdaderos) 
-        #print(self.columnaPredichos) 
-        #print(self.arrayVerdaderos)
-        #print(self.arrayPredichos)
-        # Generar el reporte de clasificación
         report = classification_report(self.arrayVerdaderos, self.arrayPredichos)
         print(report)
         #self.imprimirMetricas()
 
-
-
-#    def imprimirMetricas(self):
-#        """
-#            Funcion que permite imprimir las metricas correspondientes para evaluar las predicciones
-#
-#        """
-#        # Precisión
-#        arraytemporarTrue = [0 if val == 'false' else 1 for val in self.arrayVerdaderos]
-#        arraytemporalPredichos = [0 if val == 'false' else 1 for val in self.arrayPredichos]
-#        precision = precision_score(arraytemporarTrue, arraytemporalPredichos, average='binary')  # Cambia 'binary' a 'macro' o 'weighted' si es multiclase
-#        print(f"Precisión: {precision:.2f}")
-#
-#        # Recuperación
-#        recall = recall_score(arraytemporarTrue, arraytemporalPredichos, average='binary')
-#        print(f"Recuperación: {recall:.2f}")
-#
-#        # Exactitud
-#        accuracy = accuracy_score(self.arrayVerdaderos, self.arrayPredichos)
-#        print(f"Exactitud: {accuracy:.2f}")
-#
-#        # F1-Score
-#        f1 = f1_score(arraytemporarTrue, arraytemporalPredichos, average='binary')
-#        print(f"F1-Score: {f1:.2f}")
-#
-#        # AUC-ROC
-#        try:
-#            auc_roc = roc_auc_score(self.arrayVerdaderos, self.probabilidadesPredichas)  # Necesita probabilidades predichas para binaria
-#            print(f"AUC-ROC: {auc_roc:.2f}")
-#        except ValueError:
-#            print("AUC-ROC no se puede calcular para etiquetas únicas.")
-
-        # Log-Loss
-        logloss = log_loss(self.arrayVerdaderos, self.probabilidadesPredichas)
-        print(f"Log-Loss: {logloss:.2f}")        
 
     def darFormato(self,*,arreglo=[],probabilidad = False):
         """

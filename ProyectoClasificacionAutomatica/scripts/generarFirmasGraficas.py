@@ -173,14 +173,7 @@ class codificarExcel:
                 nombre = os.path.basename(self.archivoOrigen) + "_fila_" + str(numeroFila) + ".png"
                 arrayRGBAjustado = self.ajustarColores(arrayRGB)
                 self.guardarImagen(arrayRGBAjustado,CarpetaDestino,nombre)
-                #sys.exit()
-                #print(arrayRGB)
-                #print("Ya se proceso la fila ",numeroFila)
-                #print("las celdas originales eran ", arrayceldas)
-                #print("las celdas decodificadas son ")
-                #self.decodificarArrayRGB(arrayRGB)
-#            if numeroFila == 5:                
-#                sys.exit()
+
 
 
     def ajustarColores(self,arrayRGB):
@@ -337,27 +330,6 @@ class codificarExcel:
             #print(f"Imagen guardada en '{ruta_imagen}'")
 
 
-
-    # def decodificarArrayRGB(self, arrayRGB):
-    #     #print("\033[91m" + "voy a decodificar " + "\033[0m",arrayRGB)
-    #     arrayHex = []
-    #     for rgb in arrayRGB:
-    #         #print("este es el rgb ",rgb)
-    #         if rgb != [256,256,256]:
-    #             #print("rgb diferente de 0")
-    #             unicodeBinario = ""
-    #             for decimal in rgb:
-    #                 unicodeBinario = unicodeBinario + str(self.decimal_a_binario_8bits(decimal))
-    #             #print("este es el binario  ",unicodeBinario)
-    #             unicodeHex = self.binario_a_hexadecimal(unicodeBinario)    
-    #             #print("este es el binario  en hex ",unicodeHex)
-    #             arrayHex.append(unicodeHex)
-    #         else:
-    #             #print("rgb es o o o ")
-    #             #print(arrayHex)
-    #             print(self.obtener_caracter_desde_unicode(arrayHex))
-    #             arrayHex = []
-        
             
 
 
@@ -383,51 +355,6 @@ class codificarExcel:
 
         return utf8_codificacion_decimal, utf8_codificacion_hex  
 
-
-    # def binario_a_hexadecimal(self,binario):
-    #     decimal = int(binario, 2)
-
-    #     hexadecimal = hex(decimal)[2:]  # Eliminar el prefijo '0x'
-    
-    #     return hexadecimal.upper()  # Devolver en mayúsculas
-
-
-
-    # def obtener_caracter_desde_unicode(self,arrayhex):
-    #     try:
-    #         cadena = ""
-    #         for hex in arrayhex:
-    #             punto_de_codigo_int = int(hex, 16)
-    #             caracter = chr(punto_de_codigo_int)
-    #             cadena = cadena + caracter
-    #         try:
-    #             return int(cadena)
-    #         except Exception as e:
-    #             if cadena == "None":
-    #                 return None
-    #             elif cadena == "True":
-    #                 return True
-    #             elif cadena == "False":
-    #                 return False
-    #             else:
-    #                 return cadena
-    #     except ValueError:
-    #         return None              
-
-
-
-    # def decimal_a_binario_8bits(self, decimal):
-    #     # Manejar el caso 0 explícitamente
-    #     if decimal == 0:
-    #         return '00000000'
-    #     # Convertir a binario y eliminar el prefijo '0b'
-    #     binario = bin(decimal)[2:]
-    # 	# Asegurar que tenga 8 bits, agregando ceros a la izquierda si es necesario
-    #     binario_8bits = binario.zfill(8)
-    #     # Si el número es mayor que 255, se puede truncar o gestionar según sea necesario
-    #     if decimal > 255:
-    #         return binario_8bits[-8:]  # Devolver los últimos 8 bits
-    #     return binario_8bits
 
     def decialABinario24(self,decimal):
         """
@@ -498,44 +425,9 @@ class codificarExcel:
             arrayDecimales.append(decimal)
         
 
-        # se revisa si el arrray resultante se compone de solo un pixel valido, es decir tiene al menos dos pixeles en cero probocando un color azulado
-        # suma = 0
-        # tamanio = len(arrayDecimales)
-        # contador = 0
-        # for decimal in arrayDecimales:
-        #     suma = suma + decimal
-        #     if decimal == 0:
-        #         contador = contador + 1
-        # if contador == (tamanio - 1):
-        #     for i in range (tamanio):
-        #         arrayDecimales[i] = suma
-
-        # print(arrayDecimales)
-
 
         return arrayDecimales
 
 
-if __name__ == "__main__":
-    c = codificarExcel()
-    # # Configurar el analizador de argumentos
-    # parser = argparse.ArgumentParser(description="Argumentos que permiten ejecutar el programa")
-    # # Agregar argumentos
-    # parser.add_argument("--archivoEntrenamiento", type=str, required=True, default="",                  help="Nombre del archivo que se va a procesar")
-    # parser.add_argument("--carpetaSalida",        type=str               , default="Resultado/",      help="Nombre de la carpeta donde se va a guardar")
-    # parser.add_argument("--columnaClasificadora", type=int, required=True, default="",                  help="Columna que permitira la clasificacion de cada registro")
-    # parser.add_argument("--anchoImagenes",        type=int,                default=0,                   help="Ancho de la imagen a generar")  
-    # parser.add_argument("--altoImagenes",         type=int,                default=0,                   help="Alto de la imagen a generar")  
-    # parser.add_argument("--listaCategorias",      type=str,                default="",                  help="Lista de categorias, se compone de [[Columna1Categoria1,Columna2Categoria1,...],[[Columna1Categoria2,Columna2Categoria2,...],[.........]]")  
-    # args = parser.parse_args()
-
-    # #codificar = codificarExcel('./DummieDataSet.xlsx','./ResultDataSet.xlsx',"NeedRV",100,100)
-    # codificar = codificarExcel(origen=args.archivoEntrenamiento,destino=args.carpetaSalida,columnaClasificadora=args.columnaClasificadora,ancho=args.anchoImagenes,alto=args.altoImagenes)
 
 
-    # #print(codificar.decialABinario24(codificar.elMayor))
-    # #print(codificar.decialABinario24(codificar.elMenor))
-    # #print(codificar.decialABinario24(1114111))
-    # #print(codificar.dividirBinarioenBytes("12345678abcdefghABCDEFGH"))
-    # #print(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111)))
-    # #print(codificar.array_binarios_a_RGB(codificar.dividirBinarioenBytes(codificar.decialABinario24(1114111))))
