@@ -232,6 +232,7 @@ class Modelos:
         """
         Función que usa Sequential para crear un modelo de tipo CNN basado en VGG
         """
+
         self.model = Sequential([
             # Bloque 1
             Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(self.img_height, self.img_width, 3)),
@@ -246,15 +247,15 @@ class Modelos:
             MaxPooling2D((2, 2), strides=(2, 2)),
 
             # Bloque 4
-            Conv2D(256, (3, 3), activation='relu', padding='same'),
-            MaxPooling2D((2, 2), strides=(2, 2)),
+            #Conv2D(256, (3, 3), activation='relu', padding='same'),
+            #MaxPooling2D((2, 2), strides=(2, 2)),
 
 
             # Clasificación
             Flatten(),
-            Dense(256, activation='relu'),
+            Dense(512, activation='relu'),
             Dropout(0.5),
-            Dense(128, activation='relu'),
+            Dense(256, activation='relu'),
             Dropout(0.5),
             Dense(len(self.classes), activation='softmax')
         ])
