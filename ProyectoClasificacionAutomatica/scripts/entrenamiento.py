@@ -51,6 +51,13 @@ class Modelos:
             self.crearCNN()
         elif tipo.lower() == "fcn":
             self.crearFCN()
+        elif tipo.lower() == "cnntensorflow":
+            self.crearTensor()            
+        elif tipo.lower() == "cnnalexnet":
+            self.crearCNNAlex()
+        elif tipo.lower() == "cnnvgg":
+            self.crearVGGtinny()                                    
+        #self.model.summary()
         self.crearOptimizer()
         self.compilarmodelo()
         self.tiempoinicial = datetime.now()
@@ -60,8 +67,8 @@ class Modelos:
         print(f'Delta Time: {self.diferencia.total_seconds()/60} minutes')
         self.salvarmodelo()
         #self.verDatos()
-
-    # def verDatos(self):
+        
+    #def verDatos(self):
     #     acc = self.history.history['accuracy']
     #     val_acc = self.history.history['val_accuracy']
     #     loss = self.history.history['loss']
@@ -133,11 +140,131 @@ class Modelos:
             Dense(512, activation='relu'),
             Dropout(0.5),
             Dense(len(self.classes), activation='softmax')
-        ])                
+        ])               
+
+    def crearTensor(self):
+        """
+            Funcion que usa Sequential para crear un modelo de tipo CNN basado en los ejemplos de tensorflow
+        """
+        self.model = Sequential([
+            #Conv2D(32, (3, 3), activation='relu', input_shape=(*self.image_size, 3)),
+            Conv2D(32, (3, 3), activation='relu', input_shape=(self.img_height, self.img_width, 3)),
+            MaxPooling2D((2, 2)),
+            Conv2D(64, (3, 3), activation='relu'),
+            MaxPooling2D((2, 2)),
+            Conv2D(64, (3, 3), activation='relu'),
+            Flatten(),
+            Dense(64, activation='relu'),
+            Dense(len(self.classes))
+        ])               
+
+    def crearCNNAlex(self):
+        """
+        Función que usa Sequential para crear un modelo de tipo CNN basado en AlexNet.
+        """
+        self.model = Sequential([
+            # Primera capa 
+            Conv2D(96, (11, 11), strides=(4, 4), activation='relu', input_shape=(self.img_height, self.img_width, 3)),
+            MaxPooling2D((3, 3), strides=(2, 2)),
+
+            # Segunda capa 
+            Conv2D(256, (5, 5), activation='relu', padding='same'),
+            MaxPooling2D((3, 3), strides=(2, 2)),
+
+            # Tercera, cuarta y quinta capas convolucionales
+            Conv2D(384, (3, 3), activation='relu', padding='same'),
+            Conv2D(384, (3, 3), activation='relu', padding='same'),
+            Conv2D(256, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((3, 3), strides=(2, 2)),
+
+            # Aplanado y capas densas completamente conectadas
+            Flatten(),
+            Dense(4096, activation='relu'),
+            Dropout(0.5),
+            Dense(4096, activation='relu'),
+            Dropout(0.5),
+            Dense(len(self.classes), activation='softmax')
+        ])
+
+    def crearVGG(self):
+        """
+        Función que usa Sequential para crear un modelo de tipo CNN basado en VGG
+        """
+        self.model = Sequential([
+            # Bloque 1
+            Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(self.img_height, self.img_width, 3)),
+            Conv2D(64, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 2
+            Conv2D(128, (3, 3), activation='relu', padding='same'),
+            Conv2D(128, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 3
+            Conv2D(256, (3, 3), activation='relu', padding='same'),
+            Conv2D(256, (3, 3), activation='relu', padding='same'),
+            Conv2D(256, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 4
+            Conv2D(512, (3, 3), activation='relu', padding='same'),
+            Conv2D(512, (3, 3), activation='relu', padding='same'),
+            Conv2D(512, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 5
+            Conv2D(512, (3, 3), activation='relu', padding='same'),
+            Conv2D(512, (3, 3), activation='relu', padding='same'),
+            Conv2D(512, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Clasificación
+            Flatten(),
+            Dense(4096, activation='relu'),
+            Dropout(0.5),
+            Dense(4096, activation='relu'),
+            Dropout(0.5),
+            Dense(len(self.classes), activation='softmax')
+        ])
+
+    def crearVGGtinny(self):
+        """
+        Función que usa Sequential para crear un modelo de tipo CNN basado en VGG
+        """
+        self.model = Sequential([
+            # Bloque 1
+            Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(self.img_height, self.img_width, 3)),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 2
+            Conv2D(64, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 3
+            Conv2D(128, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+            # Bloque 4
+            Conv2D(256, (3, 3), activation='relu', padding='same'),
+            MaxPooling2D((2, 2), strides=(2, 2)),
+
+
+            # Clasificación
+            Flatten(),
+            Dense(256, activation='relu'),
+            Dropout(0.5),
+            Dense(128, activation='relu'),
+            Dropout(0.5),
+            Dense(len(self.classes), activation='softmax')
+        ])
+
+
+
 
     def crearFCN(self):
         """
-            Funcion que usa Sequential para crear un modelo de tipo DNN
+            Funcion que usa Sequential para crear un modelo de tipo Fcn
         """        
         self.model = Sequential([
             Flatten(input_shape=(self.img_height, self.img_width, 3)),

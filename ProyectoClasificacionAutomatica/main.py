@@ -218,18 +218,22 @@ if __name__ == "__main__":
                     #print(destino)
                     while True:
                         try:
-                            print(tabMenu,"Seleccione el tipo de modelo a entrenar")
-                            print(tabMenu,"1. Red neuronal convolucional CNN")
-                            print(tabMenu,"2. Red completamente conectada FCN")                          
+                            print(tabMenu,"Seleccione el tipo de modelo a entrenar")                          
+                            print(tabMenu,"1. Red neuronal convolucional basada en ejemplos de TensorFlow")                          
+                            print(tabMenu,"2. Red neuronal convolucional basada en AlexNet")                          
+                            print(tabMenu,"3. Red neuronal convolucional basada en VGG")                          
                             print
                             seleccion = input()
                             a = int(seleccion)
                             if a == 1:
-                                tipo = "CNN"
+                                tipo = "cnntensorflow"
                                 break
                             elif a == 2:
-                                tipo = "FCN"
+                                tipo = "cnnalexnet"
                                 break
+                            elif a == 3:
+                                tipo = "cnnvgg"
+                                break                            
                             else:
                                 a = 1/0
                         except Exception as e:
